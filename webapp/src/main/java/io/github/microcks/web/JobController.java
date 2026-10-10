@@ -24,6 +24,7 @@ import io.github.microcks.service.JobService;
 import io.github.microcks.util.SafeLogger;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,10 +76,12 @@ public class JobController {
          @RequestParam(value = "size", required = false, defaultValue = "20") int size,
          @RequestParam(value = "name", required = false) String name) {
       log.debug("Getting job list for page {} and size {}", page, size);
+
+      Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
       if (name != null) {
-         return jobRepository.findByNameLike(name);
+         return jobRepository.findByNameLike(name, pageable);
       }
-      return jobRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"))).getContent();
+      return jobRepository.findAll(pageable).getContent();
    }
 
    @GetMapping(value = "/jobs/search")
